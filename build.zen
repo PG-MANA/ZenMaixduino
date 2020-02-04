@@ -1,0 +1,22 @@
+const Builder = @import("std").build.Builder;
+const MCModel = @import("std").builtin.MCModel;
+const Target =  @import("std").build.Target;
+
+//https://maixpy.sipeed.com/en/get_started/upgrade_firmware.html
+
+pub fn build(b: *Builder) anyerror!void {
+    const mode = b.standardReleaseOptions();
+    const bin = b.addExecutable("ZenMaixduino", "src/main.zen");
+    bin.setLinkerScriptPath("script/bin.ld");//ld.lldelfしかはけない...ホゲェ...
+    bin.setBuildMode(mode);
+    bin.setTheTarget(try Target.parse("riscv64-freestanding-gnu"));
+    bin.addLLVMOption("--mattr=+m,+a,+f,+c");
+    bin.install();
+
+    const objcopy = b.addSystemCommand([_][]const u8{"objcopy", "--input-target=elf64-little", "--output-target=binary", "zen-cache/bin/ZenMaixduino", "zen-cache/bin/ZenMaixduino.bin"});
+    objcopy.step.dependOn(b.getInstallStep());
+    const flash = b.addSystemCommand([_][]const u8{"kflash", "-B", "sipeed-maixduino", "zen-cache/bin/ZenMaixduino.bin", "-p", "/dev/ttyUSB0"});
+    flash.step.dependOn(&objcopy.step);
+    const flash_step = b.step("flash", "Flash the binary to Maixduino with kflash.");
+    flash_step.dependOn(&flash.step);
+}

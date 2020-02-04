@@ -1,0 +1,40 @@
+//https://github.com/sipeed/kendryte-standalone-sdk/blob/cbcf157696ef8aa0d6220fe96eae5557087d873c/lib/bsp/include/platform.h
+//https://s3.cn-north-1.amazonaws.com.cn/dl.kendryte.com/documents/kendryte_standalone_programming_guide_20190311144158_en.pdf
+const Uart = @import("uart.zen").Uart;
+
+
+export fn main() noreturn {
+    const text = "Hello,world!\r\nあいうえお\r\n" ** 5;
+    const uart = @intToPtr(*volatile Uart, 0x50230000);
+    uart.init_uart3();
+    uart.puts(text);
+    while(true) {
+        asm volatile("wfi");
+    }
+}
+
+export fn abort() noreturn {
+    while(true) {
+        asm volatile("wfi");
+    } 
+}
+
+comptime {
+    asm(
+        \\.global _start;
+        \\.extern main;
+        \\.type _start, @function;
+        \\_start:
+        \\  lla     sp, stack
+        \\  csrw mideleg, 0
+        \\  csrw medeleg, 0
+        \\  csrw mie, 0
+        \\  csrw mip, 0
+        \\  li t0, 0x00006000
+        \\  csrs mstatus, t0
+        \\  j main
+        \\.section .bss
+        \\.skip 1024
+        \\stack:
+    );
+}
