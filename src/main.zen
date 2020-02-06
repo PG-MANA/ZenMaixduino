@@ -10,16 +10,14 @@ export fn main(core_id: c_int) noreturn {
     uart.init_uart3();
     uart.puts(text);
     }
-    while(true) {
-        asm volatile("wfi");
-    }
+    @Trap();
+    //while(true) {
+    //    asm volatile("wfi");
+    //}
 }
 
 export fn _abort() noreturn {
-    @intToPtr(*volatile u8, 0x38000000).* = '5';
-    while(true) {
-        asm volatile("wfi");
-    } 
+    @Trap();
 }
 
 export const abort: @typeOf(_abort) align(4) = _abort;
@@ -27,8 +25,7 @@ export const abort: @typeOf(_abort) align(4) = _abort;
 const builtin = @import("builtin");
 
 pub fn panic(msg: []const u8, stack_trace: ?*builtin.StackTrace) noreturn {
-    @intToPtr(*volatile u8, 0x38000000).* = 'p';
-    while (true) {}
+    @Trap();
 }
 
 

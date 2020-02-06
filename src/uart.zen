@@ -97,21 +97,30 @@ pub const Uart = extern struct {
         self.union3.FCR = (0 << 6) | (3 << 4) | (1 << 3) | 1;
         self.SRT = 0;
         //self.puts([_]u8{0} ** 16);
-        //fpioa.enable_uart3();
-        //fpioa.init();
+        fpioa.enable_uart3();
+        self.pc('6');
+        fpioa.init();
+        self.pc('7');
     }
 
+    pub fn pc(self: *volatile Self, c: u8) void {
+        const p = @intToPtr(*volatile u32, 0x38000000);
+        while(p.* & (1 << 31) != 0){}
+        @intToPtr(*volatile u8, 0x38000000).* = c;
+    }
+
+    
     pub fn getc(self: *volatile Self) u8 {
         while((self.LSR & 1) == 0){}
         return @intCast(u8, self.union1.RBR & 0xff);
     }
 
     pub fn putc(self: *volatile Self, c: u8) void {
-        //while((self.LSR & (1 << 5)) != 0){}
-        const p = @intToPtr(*volatile u32, 0x38000000);
-        while(p.* & (1 << 31) != 0){}
-        @intToPtr(*volatile u8, 0x38000000).* = c;
-        //self.union1.THR = c;
+        while((self.LSR & (1 << 5)) != 0){}
+        //const p = @intToPtr(*volatile u32, 0x38000000);
+        //while(p.* & (1 << 31) != 0){}
+        //@intToPtr(*volatile u8, 0x38000000).* = c;
+        self.union1.THR = c;
     }
 
     pub fn puts(self: *volatile Self, str: []const u8) void {
