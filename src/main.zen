@@ -3,26 +3,40 @@
 const Uart = @import("uart.zen").Uart;
 
 
-export fn main() noreturn {
+export fn main(core_id: c_int) noreturn {
+    if(core_id == 0) {
     const text = "Hello,world!\r\nあいうえお\r\n" ** 5;
     const uart = @intToPtr(*volatile Uart, 0x50230000);
     uart.init_uart3();
     uart.puts(text);
+    }
     while(true) {
         asm volatile("wfi");
     }
 }
 
-export fn abort() noreturn {
+export fn _abort() noreturn {
+    @intToPtr(*volatile u8, 0x38000000).* = '5';
     while(true) {
         asm volatile("wfi");
     } 
 }
 
+export const abort: @typeOf(_abort) align(4) = _abort;
+
+const builtin = @import("builtin");
+
+pub fn panic(msg: []const u8, stack_trace: ?*builtin.StackTrace) noreturn {
+    @intToPtr(*volatile u8, 0x38000000).* = 'p';
+    while (true) {}
+}
+
+
 comptime {
     asm(
         \\.global _start;
         \\.extern main;
+        \\.extern abort;
         \\.type _start, @function;
         \\_start:
         \\  lla     sp, stack
@@ -30,8 +44,11 @@ comptime {
         \\  csrw medeleg, 0
         \\  csrw mie, 0
         \\  csrw mip, 0
+        \\  la t0, abort
+        \\  csrw mtvec, t0
         \\  li t0, 0x00006000
         \\  csrs mstatus, t0
+        \\  csrr a0, mhartid
         \\  j main
         \\.section .bss
         \\.skip 1024

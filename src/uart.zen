@@ -96,10 +96,9 @@ pub const Uart = extern struct {
         self.union2.IER |= 0x80;
         self.union3.FCR = (0 << 6) | (3 << 4) | (1 << 3) | 1;
         self.SRT = 0;
-        self.puts([_]u8{0} ** 16);
-
-        fpioa.enable_uart3();
-        fpioa.init();
+        //self.puts([_]u8{0} ** 16);
+        //fpioa.enable_uart3();
+        //fpioa.init();
     }
 
     pub fn getc(self: *volatile Self) u8 {
@@ -108,8 +107,11 @@ pub const Uart = extern struct {
     }
 
     pub fn putc(self: *volatile Self, c: u8) void {
-        while((self.LSR & (1 << 5)) != 0){}
-        self.union1.THR = c;
+        //while((self.LSR & (1 << 5)) != 0){}
+        const p = @intToPtr(*volatile u32, 0x38000000);
+        while(p.* & (1 << 31) != 0){}
+        @intToPtr(*volatile u8, 0x38000000).* = c;
+        //self.union1.THR = c;
     }
 
     pub fn puts(self: *volatile Self, str: []const u8) void {

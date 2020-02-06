@@ -1,6 +1,6 @@
 
 MEMORY {
-  ram_with_cache : ORIGIN = 0xffffffff80000000, LENGTH = (6 * 1024 * 1024)
+  ram_with_cache : ORIGIN = 0x80000000, LENGTH = (6 * 1024 * 1024)
   ram_without_cache : ORIGIN = 0x40000000, LENGTH = (6 * 1024 * 1024)
 }
 
