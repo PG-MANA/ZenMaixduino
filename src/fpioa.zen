@@ -17,10 +17,8 @@ pub const Fpioa = packed struct {
     const Self = @This();
 
     pub fn enable_uart3(self: *volatile Self) void {
-    //1344995344:900044::1344995348:1f45::1344995348:1f45::57
-        @intToPtr(*volatile u32, 1344995344).* = 9437252;
-        @intToPtr(*volatile u32, 1344995348).* = 8005;
-        //self.fpioa_config[5] = 0xc372d;
+        self.fpioa_config[4] = 0x900044;
+        self.fpioa_config[5] = 0x1f45;
     }
 
     pub fn init(self: *volatile Self) void{

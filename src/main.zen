@@ -11,9 +11,6 @@ export fn main(core_id: c_int) noreturn {
     uart.puts(text);
     }
     @Trap();
-    //while(true) {
-    //    asm volatile("wfi");
-    //}
 }
 
 export fn _abort() noreturn {

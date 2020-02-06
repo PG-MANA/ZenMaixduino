@@ -78,6 +78,7 @@ pub const Uart = extern struct {
     pub fn init_uart3(self: *volatile Self) void {
         const sys_ctl = @intToPtr(*volatile SysCtl, SYSCTL_BASE_ADDR);
         const fpioa = @intToPtr(*volatile Fpioa, FPIOA_BASE_ADDR);
+
         sys_ctl.enable_uart3_clock_bus();
         sys_ctl.enable_uart3_clock();
 
@@ -98,18 +99,9 @@ pub const Uart = extern struct {
         self.SRT = 0;
         //self.puts([_]u8{0} ** 16);
         fpioa.enable_uart3();
-        self.pc('6');
         fpioa.init();
-        self.pc('7');
     }
 
-    pub fn pc(self: *volatile Self, c: u8) void {
-        const p = @intToPtr(*volatile u32, 0x38000000);
-        while(p.* & (1 << 31) != 0){}
-        @intToPtr(*volatile u8, 0x38000000).* = c;
-    }
-
-    
     pub fn getc(self: *volatile Self) u8 {
         while((self.LSR & 1) == 0){}
         return @intCast(u8, self.union1.RBR & 0xff);
@@ -117,9 +109,6 @@ pub const Uart = extern struct {
 
     pub fn putc(self: *volatile Self, c: u8) void {
         while((self.LSR & (1 << 5)) != 0){}
-        //const p = @intToPtr(*volatile u32, 0x38000000);
-        //while(p.* & (1 << 31) != 0){}
-        //@intToPtr(*volatile u8, 0x38000000).* = c;
         self.union1.THR = c;
     }
 
@@ -128,5 +117,4 @@ pub const Uart = extern struct {
             self.putc(c);
         }
     }
-
 };
