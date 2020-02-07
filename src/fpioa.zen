@@ -1,28 +1,25 @@
 
-
 const SysCtl = @import("sysctl.zen").SysCtl;
 const SYSCTL_BASE_ADDR = @import("sysctl.zen").SYSCTL_BASE_ADDR;
-
-
 const NUM_FPIOA_IO: u32 = 48;
 pub const FPIOA_BASE_ADDR: usize = 0x502B0000;
 
 
 pub const Fpioa = packed struct {
-    
-    fpioa_config: [NUM_FPIOA_IO]u32,
+
+    fpioa_config: [NUM_FPIOA_IO]u32 align(4),
     fpoia_tie: [256 / 32]u32,
     fpoia_val: [256 / 32]u32,
 
     const Self = @This();
 
     pub fn enable_uart3(self: *volatile Self) void {
-        self.fpioa_config[4] = 0xc372d;
+        self.fpioa_config[4] = 0x900044;
         self.fpioa_config[5] = 0x1f45;
     }
 
     pub fn init(self: *volatile Self) void{
-        const sys_ctl = @intToPtr(*volatile SysCtl, SYSCTL_BASE_ADDR); 
+        const sys_ctl = @intToPtr(*volatile SysCtl, SYSCTL_BASE_ADDR);
         sys_ctl.enable_fpioa_clock();
     }
 };

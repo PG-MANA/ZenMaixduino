@@ -53,14 +53,10 @@ pub const SysCtl = packed struct {
             0 => 26000000,
             1 => clock: {
                 const freq_in: f64 = 26000000;
-                @intToPtr(*volatile u8, 0x38000000).* = '1';
                 const nr: f64 = @intToFloat(f64, (self.pll0_ctl & 0x000F) >>  0) + 1;
-                @intToPtr(*volatile u8, 0x38000000).* = '2';
                 const nf: f64 = @intToFloat(f64, (self.pll0_ctl & 0x03F0) >>  4) + 1;
                 const od: f64 = @intToFloat(f64, (self.pll0_ctl & 0x3C00) >> 10) + 1;
-                @intToPtr(*volatile u8, 0x38000000).* = '3';
                 const freq_pll0: u32 = @floatToInt(u32, freq_in / nr * nf / od);
-                @intToPtr(*volatile u8, 0x38000000).* = '4';
                 const aclk_divider_sel: u2 = @intCast(u2, (self.clk_sel0 >> 1) & 0x03);
                 var divider_sel: u32 = 0;
                 _ = @shlWithOverflow(u32, 2, aclk_divider_sel, &divider_sel);
@@ -68,7 +64,6 @@ pub const SysCtl = packed struct {
             },
             else => 0,
         };
-        @intToPtr(*volatile u8, 0x38000000).* = 'P';
         return source / (((self.clk_sel0 >> 3) & 7) + 1);
     }
 };

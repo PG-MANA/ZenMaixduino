@@ -10,7 +10,8 @@ pub fn build(b: *Builder) anyerror!void {
     bin.setLinkerScriptPath("script/bin.ld");//ld.lldelfしかはけない...ホゲェ...
     bin.setBuildMode(mode);
     bin.setTheTarget(try Target.parse("riscv64-freestanding-gnu"));
-    bin.addLLVMOption("--mattr=+m,+a,+f,+c");
+    //bin.addLLVMOption("--mattr=+m,+a,+f,+c");
+    bin.setMCModel(MCModel.Medium);
     bin.install();
 
     const objcopy = b.addSystemCommand([_][]const u8{"objcopy", "--input-target=elf64-little", "--output-target=binary", "zen-cache/bin/ZenMaixduino", "zen-cache/bin/ZenMaixduino.bin"});
