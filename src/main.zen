@@ -4,7 +4,7 @@
 const Uart = @import("uart.zen").Uart;
 const UART3_BASE_ADDR = @import("uart.zen").UART3_BASE_ADDR;
 const builtin = @import("builtin");
-export const abort: @typeOf(_abort) align(4) = _abort;
+export const abort: @TypeOf(_abort) align(4) = _abort;
 
 export fn main(core_id: c_int) noreturn {
     if(core_id == 0) {
@@ -13,15 +13,15 @@ export fn main(core_id: c_int) noreturn {
       uart.init_uart3();
       uart.puts(text);
     }
-    @Trap();
+    @trap();
 }
 
 export fn _abort() noreturn {
-    @Trap();
+    @trap();
 }
 
 pub fn panic(msg: []const u8, stack_trace: ?*builtin.StackTrace) noreturn {
-    @Trap();
+    @trap();
 }
 
 comptime {
