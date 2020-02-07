@@ -7,6 +7,8 @@ const SYSCTL_BASE_ADDR = @import("sysctl.zen").SYSCTL_BASE_ADDR;
 const Fpioa = @import("fpioa.zen").Fpioa;
 const FPIOA_BASE_ADDR = @import("fpioa.zen").FPIOA_BASE_ADDR;
 
+pub const UART3_BASE_ADDR: usize = 0x50230000;
+
 pub const Uart = extern struct {
 
     const Union1 = extern union {
@@ -97,7 +99,6 @@ pub const Uart = extern struct {
         self.union2.IER |= 0x80;
         self.union3.FCR = (0 << 6) | (3 << 4) | (1 << 3) | 1;
         self.SRT = 0;
-        //self.puts([_]u8{0} ** 16);
         fpioa.enable_uart3();
         fpioa.init();
     }

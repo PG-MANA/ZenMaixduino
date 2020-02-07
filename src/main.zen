@@ -1,14 +1,17 @@
-//https://github.com/sipeed/kendryte-standalone-sdk/blob/cbcf157696ef8aa0d6220fe96eae5557087d873c/lib/bsp/include/platform.h
-//https://s3.cn-north-1.amazonaws.com.cn/dl.kendryte.com/documents/kendryte_standalone_programming_guide_20190311144158_en.pdf
-const Uart = @import("uart.zen").Uart;
+// https://github.com/sipeed/kendryte-standalone-sdk/blob/cbcf157696ef8aa0d6220fe96eae5557087d873c/lib/bsp/include/platform.h
+// https://s3.cn-north-1.amazonaws.com.cn/dl.kendryte.com/documents/kendryte_standalone_programming_guide_20190311144158_en.pdf
 
+const Uart = @import("uart.zen").Uart;
+const UART3_BASE_ADDR = @import("uart.zen").UART3_BASE_ADDR;
+const builtin = @import("builtin");
+export const abort: @typeOf(_abort) align(4) = _abort;
 
 export fn main(core_id: c_int) noreturn {
     if(core_id == 0) {
-    const text = "Hello,world!\r\nあいうえお\r\n" ** 5;
-    const uart = @intToPtr(*volatile Uart, 0x50230000);
-    uart.init_uart3();
-    uart.puts(text);
+      const text = "Hello,world!\r\nあいうえお\r\n" ** 5;
+      const uart = @intToPtr(*volatile Uart, UART3_BASE_ADDR);
+      uart.init_uart3();
+      uart.puts(text);
     }
     @Trap();
 }
@@ -17,14 +20,9 @@ export fn _abort() noreturn {
     @Trap();
 }
 
-export const abort: @typeOf(_abort) align(4) = _abort;
-
-const builtin = @import("builtin");
-
 pub fn panic(msg: []const u8, stack_trace: ?*builtin.StackTrace) noreturn {
     @Trap();
 }
-
 
 comptime {
     asm(
