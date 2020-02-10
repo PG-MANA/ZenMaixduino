@@ -31,18 +31,17 @@ comptime {
         \\.extern abort;
         \\.type _start, @function;
         \\_start:
+        \\  lla  sp,stack
         \\  csrw mideleg, 0
-        \\  csrw mie, 0
-        \\  csrw mip, 0
+        \\  csrw medeleg, 0
         \\  la   t0, abort
         \\  csrw mtvec, t0
-        \\  lla     sp,stack
-        \\  la      t0,abort
-        \\  csrw    mtvec,t0
-        \\  li      t0, 0x00006000
-        \\  csrs    mstatus, t0
-        \\  csrr    a0, mhartid
-        \\  j       main
+        \\  li   t0, 0x00006000
+        \\  csrs mstatus, t0
+        \\  csrw mie, 0
+        \\  csrw mip, 0
+        \\  csrr a0, mhartid
+        \\  j    main
         \\.section .bss
         \\.skip 1024
         \\stack:
