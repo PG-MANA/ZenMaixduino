@@ -1,7 +1,7 @@
 
 pub const SYSCTL_BASE_ADDR: usize = 0x50440000;
 
-pub const SysCtl = packed struct {
+pub const SysCtl = extern struct {
     const Self = @This();
 
     git_id: u32, //なんぞこれ
