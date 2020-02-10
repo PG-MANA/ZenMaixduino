@@ -10,7 +10,7 @@ pub fn build(b: *Builder) anyerror!void {
     bin.setLinkerScriptPath("script/bin.ld");//ld.lldelfしかはけない...ホゲェ...
     bin.setBuildMode(mode);
     bin.setTheTarget(try Target.parse("riscv64-freestanding-gnu"));
-    //bin.addLLVMOption("--mattr=+m,+a,+f,+c");
+    //bin.setMAttr("+m,+a,+f,+d,+c,+relax"); //のような設定がほしい
     bin.setMCModel(MCModel.Medium);
     bin.install();
 
