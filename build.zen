@@ -12,7 +12,8 @@ pub fn build(b: *Builder) anyerror!void {
     bin.setLinkerScriptPath("script/bin.ld");//ld.lldelfしかはけない...ホゲェ...
     bin.setBuildMode(mode);
     bin.setTheTarget(try Target.parse("riscv64-freestanding-eabi"));
-    bin.setMachineAttributes("+m,+a,+f,+d,+c,+relax"); //のような設定がほしい
+    bin.setTargetABIName("lp64f");
+    bin.setMachineAttributes("+m,+a,+f,+c,+relax"); //のような設定がほしい
     bin.setMCModel(MCModel.Medium);
     bin.install();
 
@@ -25,7 +26,7 @@ pub fn build(b: *Builder) anyerror!void {
     const objcopy = b.addSystemCommand(&[_][]const u8{obj_copy_bin, "--input-target=elf64-little", "--output-target=binary", "zen-cache/bin/ZenMaixduino", "zen-cache/bin/ZenMaixduino.bin"});
     objcopy.step.dependOn(b.getInstallStep());
     const flash = b.addSystemCommand(&[_][]const u8{ "kflash"
-                                                   , "-t"
+                                                   //, "-t"
                                                    , "-B"
                                                    , "sipeed-maixduino"
                                                    , "zen-cache/bin/ZenMaixduino.bin"
