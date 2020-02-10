@@ -13,30 +13,13 @@ pub fn build(b: *Builder) anyerror!void {
     bin.setBuildMode(mode);
     bin.setTheTarget(try Target.parse("riscv64-freestanding-eabi"));
     bin.setTargetABIName("lp64f");
-    bin.setMachineAttributes("+m,+a,+f,+c,+relax"); //のような設定がほしい
+    bin.setMachineAttributes("+m,+a,+f,+c,+relax");
     bin.setMCModel(MCModel.Medium);
     bin.install();
-
-    const obj_copy_bin = switch (builtin.os) {
-                             .linux => "objcopy",
-                             .macosx => "/usr/local/opt/llvm/bin/llvm-objcopy",
-                             else => @compileError("Platform not supported"),
-                         };
-
-    const objcopy = b.addSystemCommand(&[_][]const u8{obj_copy_bin, "--input-target=elf64-little", "--output-target=binary", "zen-cache/bin/ZenMaixduino", "zen-cache/bin/ZenMaixduino.bin"});
+    
+    const objcopy = b.addSystemCommand([_][]const u8{"objcopy", "--input-target=elf64-little", "--output-target=binary", "zen-cache/bin/ZenMaixduino", "zen-cache/bin/ZenMaixduino.bin"});
     objcopy.step.dependOn(b.getInstallStep());
-    const flash = b.addSystemCommand(&[_][]const u8{ "kflash"
-                                                   //, "-t"
-                                                   , "-B"
-                                                   , "sipeed-maixduino"
-                                                   , "zen-cache/bin/ZenMaixduino.bin"
-                                                   , "-p"
-                                                   , switch (builtin.os) {
-                                                      .linux => "/dev/ttyUSB0",
-                                                      .macosx => "/dev/tty.usbserial-0D52938DA60",
-                                                      else => @compileError("Platform not supported"),
-                                                    }
-                                                   });
+    const flash = b.addSystemCommand([_][]const u8{"kflash", "-t", "-B", "sipeed-maixduino", "zen-cache/bin/ZenMaixduino.bin", "-p", "/dev/ttyUSB0"});
     flash.step.dependOn(&objcopy.step);
     const flash_step = b.step("flash", "Flash the binary to Maixduino with kflash.");
     flash_step.dependOn(&flash.step);
